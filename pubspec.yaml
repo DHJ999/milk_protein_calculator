@@ -1,0 +1,20 @@
+name: milk_protein_calculator
+description: 牛奶计算器 —— 输入容量、蛋白质含量与价格，自动对比每元多少克蛋白质并综合排序。
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
