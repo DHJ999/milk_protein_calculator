@@ -26,3 +26,6 @@ build/
 # Signing keys (DO NOT COMMIT - keep backed up offline)
 android/key.properties
 android/app/upload-keystore.jks
+
+# Built APK (distribute via GitHub Releases, not committed to repo)
+milk.apk
