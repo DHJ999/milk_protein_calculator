@@ -42,11 +42,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _load() async {
-    final list = await MilkStorage.load();
-    setState(() {
-      _milks = list;
-      _loading = false;
-    });
+    try {
+      final list = await MilkStorage.load();
+      if (!mounted) return;
+      setState(() {
+        _milks = list;
+        _loading = false;
+      });
+    } catch (e) {
+      debugPrint('load milk list failed: $e');
+      if (!mounted) return;
+      setState(() {
+        _milks = [];
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _persist() async {
@@ -75,7 +85,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _deleteMilk(String id) {
-    setState(() => _milks.removeWhere((m) => m.id == id));
+    final idx = _milks.indexWhere((m) => m.id == id);
+    if (idx == -1) return;
+    final removed = _milks[idx];
+    setState(() => _milks.removeAt(idx));
+    _persist();
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('已删除'),
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: '撤销',
+          onPressed: () {
+            setState(() {
+              final insertAt = idx.clamp(0, _milks.length);
+              _milks.insert(insertAt, removed);
+            });
+            _persist();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _updateMilk(Milk milk) {
+    setState(() {
+      final idx = _milks.indexWhere((m) => m.id == milk.id);
+      if (idx != -1) _milks[idx] = milk;
+    });
     _persist();
   }
 
@@ -87,6 +126,17 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => _AddSheet(onSubmit: _addMilk),
+    );
+  }
+
+  void _showEditSheet(Milk milk) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _AddSheet(initial: milk, onSubmit: _updateMilk),
     );
   }
 
@@ -125,6 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           rank: i + 1,
                           isBest: sorted[i].id == bestId,
                           onDelete: () => _deleteMilk(sorted[i].id),
+                          onEdit: () => _showEditSheet(sorted[i]),
                         ),
                       ),
                     ),
@@ -147,7 +198,7 @@ class _SortBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4),
+      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.4),
       child: Row(
         children: [
           const Icon(Icons.sort, size: 16),
@@ -196,7 +247,9 @@ class _EmptyState extends StatelessWidget {
 
 class _AddSheet extends StatefulWidget {
   final void Function(Milk) onSubmit;
-  const _AddSheet({required this.onSubmit});
+  final Milk? initial;
+
+  const _AddSheet({required this.onSubmit, this.initial});
 
   @override
   State<_AddSheet> createState() => _AddSheetState();
@@ -208,6 +261,26 @@ class _AddSheetState extends State<_AddSheet> {
   final _proteinCtl = TextEditingController();
   final _priceCtl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _nameFocus = FocusNode();
+
+  bool get _isEdit => widget.initial != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final m = widget.initial;
+    if (m != null) {
+      _nameCtl.text = m.name;
+      _volumeCtl.text = m.volume.toString();
+      _proteinCtl.text = m.proteinPer100.toString();
+      _priceCtl.text = m.price.toString();
+    } else {
+      // 添加模式下，弹窗打开后自动聚焦到名称字段
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _nameFocus.requestFocus();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -215,14 +288,17 @@ class _AddSheetState extends State<_AddSheet> {
     _volumeCtl.dispose();
     _proteinCtl.dispose();
     _priceCtl.dispose();
+    _nameFocus.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final initial = widget.initial;
     final milk = Milk(
-      id: Random().nextInt(1 << 32).toString() +
-          DateTime.now().millisecondsSinceEpoch.toString(),
+      id: initial?.id ??
+          Random().nextInt(1 << 32).toString() +
+              DateTime.now().millisecondsSinceEpoch.toString(),
       name: _nameCtl.text.trim(),
       volume: double.parse(_volumeCtl.text.trim()),
       proteinPer100: double.parse(_proteinCtl.text.trim()),
@@ -251,11 +327,11 @@ class _AddSheetState extends State<_AddSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+                             Row(
                 children: [
-                  const Text('添加牛奶',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(_isEdit ? '编辑牛奶' : '添加牛奶',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   const Spacer(),
                   IconButton(
                       icon: const Icon(Icons.close),
@@ -265,9 +341,10 @@ class _AddSheetState extends State<_AddSheet> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameCtl,
+                focusNode: _nameFocus,
                 decoration: const InputDecoration(
                   labelText: '名称 / 品牌（选填）',
-                  hintText: '如：特仑苏鲜牛奶',
+                  hintText: '牛奶名称',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -311,11 +388,11 @@ class _AddSheetState extends State<_AddSheet> {
                 validator: (v) => _require(v, '价格'),
               ),
               const SizedBox(height: 20),
-              SizedBox(
+                SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _submit,
-                  child: const Text('加入对比'),
+                  child: Text(_isEdit ? '保存修改' : '加入对比'),
                 ),
               ),
             ],

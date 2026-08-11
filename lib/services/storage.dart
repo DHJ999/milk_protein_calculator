@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/milk.dart';
 
@@ -8,11 +9,16 @@ class MilkStorage {
   static const _key = 'milk_list_v1';
 
   static Future<List<Milk>> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_key);
-    if (raw == null) return [];
-    final list = jsonDecode(raw) as List;
-    return list.map((e) => Milk.fromJson(e as Map<String, dynamic>)).toList();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_key);
+      if (raw == null) return [];
+      final list = jsonDecode(raw) as List;
+      return list.map((e) => Milk.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e, st) {
+      debugPrint('MilkStorage.load failed: $e\n$st');
+      return [];
+    }
   }
 
   static Future<void> save(List<Milk> milks) async {

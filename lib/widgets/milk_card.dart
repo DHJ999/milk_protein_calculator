@@ -6,6 +6,7 @@ class MilkCard extends StatelessWidget {
   final int rank; // 综合排序后的名次（从 1 开始）
   final bool isBest; // 是否为当前排序维度下的最优项
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   const MilkCard({
     super.key,
@@ -13,6 +14,7 @@ class MilkCard extends StatelessWidget {
     required this.rank,
     required this.isBest,
     required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -69,6 +71,14 @@ class MilkCard extends StatelessWidget {
                             fontWeight: FontWeight.w600)),
                   ),
                 IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  color: Colors.grey[500],
+                  onPressed: onEdit,
+                  tooltip: '编辑',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+                IconButton(
                   icon: const Icon(Icons.delete_outline, size: 20),
                   color: Colors.grey[500],
                   onPressed: onDelete,
@@ -93,7 +103,7 @@ class MilkCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHighest
-                    .withOpacity(0.5),
+                    .withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
@@ -128,7 +138,7 @@ class MilkCard extends StatelessWidget {
   Widget _divider() => Container(
         width: 1,
         height: 28,
-        color: Colors.grey.withOpacity(0.25),
+        color: Colors.grey.withValues(alpha: 0.25),
       );
 
   String _fmt(double v) {
