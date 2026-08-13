@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math';
 import '../models/milk.dart';
 import '../services/storage.dart';
@@ -38,7 +39,81 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    _checkPrivacy();
+  }
+
+  Future<void> _checkPrivacy() async {
+    final accepted = await PrivacyStorage.isAccepted();
+    if (!mounted) return;
+    if (accepted) {
+      _load();
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showPrivacyDialog();
+      });
+    }
+  }
+
+  static const String _privacyText = '''
+欢迎使用《牛奶计算器》。我们非常重视您的隐私保护，请在继续使用前阅读以下要点：
+
+一、我们收集的信息
+本应用完全离线运行，不收集、不上传任何个人信息。所有功能在您设备本地完成，不连接网络、不向任何服务器发送数据。
+
+二、数据存储
+您输入的牛奶数据仅保存在设备本地私有存储中，不会离开您的设备，我们及任何第三方均无法访问。卸载应用即可彻底删除全部本地数据。
+
+三、权限使用
+本应用不申请任何敏感权限（如通讯录、定位、相机、麦克风等）。
+
+四、第三方共享
+我们不与任何第三方共享、出售或转让您的个人信息。
+
+五、儿童隐私
+本应用不面向儿童收集个人信息。
+
+六、联系我们
+如对本政策有疑问，可通过电子邮件 milk.calc.dev@example.com 联系我们。
+
+完整政策：https://dhj999.github.io/milk-protein-calculator/privacy.html
+''';
+
+  Future<void> _showPrivacyDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        title: const Text('隐私政策'),
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+          ),
+          child: SingleChildScrollView(
+            child: Text(
+              _privacyText,
+              style: const TextStyle(fontSize: 14, height: 1.6),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('不同意并退出'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('同意并继续'),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      await PrivacyStorage.setAccepted();
+      _load();
+    } else {
+      SystemNavigator.pop();
+    }
   }
 
   Future<void> _load() async {

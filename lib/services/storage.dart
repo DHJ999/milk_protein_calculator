@@ -27,3 +27,27 @@ class MilkStorage {
     await prefs.setString(_key, raw);
   }
 }
+
+/// 隐私政策同意状态的本地持久化（仅需记一个布尔）。
+class PrivacyStorage {
+  static const _key = 'privacy_accepted_v1';
+
+  static Future<bool> isAccepted() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_key) ?? false;
+    } catch (e) {
+      debugPrint('PrivacyStorage.isAccepted failed: $e');
+      return false;
+    }
+  }
+
+  static Future<void> setAccepted() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_key, true);
+    } catch (e) {
+      debugPrint('PrivacyStorage.setAccepted failed: $e');
+    }
+  }
+}
