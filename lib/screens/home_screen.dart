@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
 本应用不面向儿童收集个人信息。
 
 六、联系我们
-如对本政策有疑问，可通过电子邮件 milk.calc.dev@example.com 联系我们。
+如对本政策有疑问，可通过电子邮件 hjd2002@yeah.net 联系我们。
 
 完整政策：https://dhj999.github.io/milk-protein-calculator/privacy.html
 ''';
