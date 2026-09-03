@@ -22,9 +22,13 @@ class MilkStorage {
   }
 
   static Future<void> save(List<Milk> milks) async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = jsonEncode(milks.map((m) => m.toJson()).toList());
-    await prefs.setString(_key, raw);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = jsonEncode(milks.map((m) => m.toJson()).toList());
+      await prefs.setString(_key, raw);
+    } catch (e, st) {
+      debugPrint('MilkStorage.save failed: $e\n$st');
+    }
   }
 }
 

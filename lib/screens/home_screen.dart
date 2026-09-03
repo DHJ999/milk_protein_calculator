@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'dart:math';
 import '../models/milk.dart';
 import '../services/storage.dart';
@@ -35,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Milk> _milks = [];
   SortMode _sort = SortMode.value;
   bool _loading = true;
+  bool _privacyDenied = false;
 
   @override
   void initState() {
@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await PrivacyStorage.setAccepted();
       _load();
     } else {
-      SystemNavigator.pop();
+      if (mounted) setState(() => _privacyDenied = true);
     }
   }
 
@@ -217,6 +217,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_privacyDenied) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('牛奶计算器')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                size: 64,
+                color: Colors.amber[700],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '需要同意隐私政策才能使用本应用',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '请手动退出后重新打开并同意',
+                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final sorted = _sorted;
     final bestId = sorted.isNotEmpty ? sorted.first.id : null;
 

@@ -142,8 +142,12 @@ class MilkCard extends StatelessWidget {
       );
 
   String _fmt(double v) {
-    // 整数不显示小数，否则保留 1 位
-    return v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
+    // 整数不显示小数；非整数保留最多 2 位，去除末尾 0
+    if (v == v.roundToDouble()) return v.toInt().toString();
+    return v
+        .toStringAsFixed(2)
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
   }
 }
 
