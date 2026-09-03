@@ -70,8 +70,3 @@ lib/
   screens/home_screen.dart  # Home: list / add / sort / compare
   screens/settings_screen.dart # Settings: language switch
 ```
-
-## A Note from the Author
-This is just a tiny utility. The reason I built it was simply to tell at a glance which milk is the better deal when shopping.
-If you find it useful and happen to have ideas or feature requests, feel free to email me: hjd2002@yeah.net
-I'm happy if it helps you, even just a little.
