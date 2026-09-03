@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/milk.dart';
 
 class MilkCard extends StatelessWidget {
@@ -50,7 +51,9 @@ class MilkCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    milk.name.isEmpty ? '未命名牛奶' : milk.name,
+                    milk.name.isEmpty
+                        ? L10n.tr(context, 'unnamed')
+                        : milk.name,
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
@@ -64,7 +67,7 @@ class MilkCard extends StatelessWidget {
                       color: theme.colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text('性价比最高',
+                    child: Text(L10n.tr(context, 'bestValue'),
                         style: TextStyle(
                             fontSize: 11,
                             color: theme.colorScheme.onPrimaryContainer,
@@ -74,7 +77,7 @@ class MilkCard extends StatelessWidget {
                   icon: const Icon(Icons.edit_outlined, size: 20),
                   color: Colors.grey[500],
                   onPressed: onEdit,
-                  tooltip: '编辑',
+                  tooltip: L10n.tr(context, 'edit'),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -82,7 +85,7 @@ class MilkCard extends StatelessWidget {
                   icon: const Icon(Icons.delete_outline, size: 20),
                   color: Colors.grey[500],
                   onPressed: onDelete,
-                  tooltip: '删除',
+                  tooltip: L10n.tr(context, 'delete'),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -91,10 +94,15 @@ class MilkCard extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                _SpecChip(label: '容量', value: '${_fmt(milk.volume)} ml'),
                 _SpecChip(
-                    label: '蛋白质', value: '${_fmt(milk.proteinPer100)} g/100ml'),
-                _SpecChip(label: '价格', value: '¥${_fmt(milk.price)}'),
+                    label: L10n.tr(context, 'volume'),
+                    value: '${_fmt(milk.volume)} ml'),
+                _SpecChip(
+                    label: L10n.tr(context, 'protein'),
+                    value: '${_fmt(milk.proteinPer100)} g/100ml'),
+                _SpecChip(
+                    label: L10n.tr(context, 'price'),
+                    value: '¥${_fmt(milk.price)}'),
               ],
             ),
             const SizedBox(height: 12),
@@ -110,19 +118,19 @@ class MilkCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _Metric(
-                    label: '总蛋白质',
+                    label: L10n.tr(context, 'totalProtein'),
                     value: '${_fmt(milk.totalProtein)} g',
                     highlight: false,
                   ),
                   _divider(),
                   _Metric(
-                    label: '每元蛋白质',
+                    label: L10n.tr(context, 'proteinPerYuan'),
                     value: '${_fmt(milk.proteinPerYuan)} g',
                     highlight: true,
                   ),
                   _divider(),
                   _Metric(
-                    label: '每100ml',
+                    label: L10n.tr(context, 'per100ml'),
                     value: '¥${_fmt(milk.pricePer100ml)}',
                     highlight: false,
                   ),

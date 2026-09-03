@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/milk.dart';
+import '../screens/settings_screen.dart';
 import '../services/storage.dart';
 import '../widgets/milk_card.dart';
 
@@ -11,14 +14,14 @@ enum SortMode {
 }
 
 extension SortModeX on SortMode {
-  String get label {
+  String label(BuildContext context) {
     switch (this) {
       case SortMode.value:
-        return '性价比 (克/元)';
+        return L10n.tr(context, 'sortValue');
       case SortMode.protein:
-        return '总蛋白质 (g)';
+        return L10n.tr(context, 'sortProtein');
       case SortMode.unitPrice:
-        return '每100ml单价 (¥)';
+        return L10n.tr(context, 'sortUnitPrice');
     }
   }
 }
@@ -54,44 +57,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  static const String _privacyText = '''
-欢迎使用《牛奶计算器》。我们非常重视您的隐私保护，请在继续使用前阅读以下要点：
-
-一、我们收集的信息
-本应用完全离线运行，不收集、不上传任何个人信息。所有功能在您设备本地完成，不连接网络、不向任何服务器发送数据。
-
-二、数据存储
-您输入的牛奶数据仅保存在设备本地私有存储中，不会离开您的设备，我们及任何第三方均无法访问。卸载应用即可彻底删除全部本地数据。
-
-三、权限使用
-本应用不申请任何敏感权限（如通讯录、定位、相机、麦克风等）。
-
-四、第三方共享
-我们不与任何第三方共享、出售或转让您的个人信息。
-
-五、儿童隐私
-本应用不面向儿童收集个人信息。
-
-六、联系我们
-如对本政策有疑问，可通过电子邮件 hjd2002@yeah.net 联系我们。
-
-完整政策：https://dhj999.github.io/milk_protein_calculator/privacy.html
-''';
-
   Future<void> _showPrivacyDialog() async {
+    final isZh = LocaleScope.of(context).isZh;
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         scrollable: true,
-        title: const Text('隐私政策'),
+        title: Text(L10n.tr(context, 'privacyPolicy')),
         content: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.6,
           ),
           child: SingleChildScrollView(
             child: Text(
-              _privacyText,
+              L10n.privacyText(isZh),
               style: const TextStyle(fontSize: 14, height: 1.6),
             ),
           ),
@@ -99,11 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('不同意并退出'),
+            child: Text(L10n.tr(context, 'disagree')),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('同意并继续'),
+            child: Text(L10n.tr(context, 'agree')),
           ),
         ],
       ),
@@ -169,10 +149,10 @@ class _HomeScreenState extends State<HomeScreen> {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('已删除'),
+        content: Text(L10n.tr(context, 'deleted')),
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
-          label: '撤销',
+          label: L10n.tr(context, 'undo'),
           onPressed: () {
             setState(() {
               final insertAt = idx.clamp(0, _milks.length);
@@ -219,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     if (_privacyDenied) {
       return Scaffold(
-        appBar: AppBar(title: const Text('牛奶计算器')),
+        appBar: AppBar(title: Text(L10n.tr(context, 'appTitle'))),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -230,14 +210,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.amber[700],
               ),
               const SizedBox(height: 16),
-              const Text(
-                '需要同意隐私政策才能使用本应用',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              Text(
+                L10n.tr(context, 'needPrivacy'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
-              const Text(
-                '请手动退出后重新打开并同意',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
+              Text(
+                L10n.tr(context, 'exitAndRetry'),
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
               ),
             ],
           ),
@@ -250,15 +230,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('牛奶计算器'),
+        title: Text(L10n.tr(context, 'appTitle')),
         centerTitle: false,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: L10n.tr(context, 'settings'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
+          ),
           PopupMenuButton<SortMode>(
             icon: const Icon(Icons.sort),
-            tooltip: '排序方式',
+            tooltip: L10n.tr(context, 'sort'),
             onSelected: (m) => setState(() => _sort = m),
             itemBuilder: (ctx) => SortMode.values
-                .map((m) => PopupMenuItem(value: m, child: Text(m.label)))
+                .map((m) => PopupMenuItem(value: m, child: Text(m.label(ctx))))
                 .toList(),
           ),
         ],
@@ -287,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddSheet,
         icon: const Icon(Icons.add),
-        label: const Text('添加牛奶'),
+        label: Text(L10n.tr(context, 'addMilk')),
       ),
     );
   }
@@ -306,13 +293,14 @@ class _SortBar extends StatelessWidget {
         children: [
           const Icon(Icons.sort, size: 16),
           const SizedBox(width: 6),
-          const Text('当前排序：', style: TextStyle(fontSize: 13)),
-          Text(sort.label,
+          Text(L10n.tr(context, 'currentSort'),
+              style: const TextStyle(fontSize: 13)),
+          Text(sort.label(context),
               style:
                   const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
           const Spacer(),
-          const Text('点击右上角 ↗ 切换',
-              style: TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(L10n.tr(context, 'tapToSwitch'),
+              style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
     );
@@ -331,16 +319,16 @@ class _EmptyState extends StatelessWidget {
           Icon(Icons.local_drink_outlined,
               size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
-          const Text('还没有记录任何牛奶',
+          Text(L10n.tr(context, 'emptyTitle'),
               style: TextStyle(fontSize: 16, color: Colors.grey)),
           const SizedBox(height: 6),
-          const Text('添加一瓶，算算它的性价比',
+          Text(L10n.tr(context, 'emptyHint'),
               style: TextStyle(fontSize: 13, color: Colors.grey)),
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add),
-            label: const Text('添加第一瓶'),
+            label: Text(L10n.tr(context, 'addFirst')),
           ),
         ],
       ),
@@ -411,11 +399,14 @@ class _AddSheetState extends State<_AddSheet> {
     Navigator.pop(context);
   }
 
-  String? _require(String? v, String field) {
-    if (v == null || v.trim().isEmpty) return '请输入$field';
+  String? _require(String? v, String fieldKey) {
+    if (v == null || v.trim().isEmpty) {
+      return L10n.tr(context, 'pleaseEnter')
+          .replaceFirst('{field}', L10n.tr(context, fieldKey));
+    }
     final n = double.tryParse(v.trim());
-    if (n == null) return '请输入数字';
-    if (n <= 0) return '需大于 0';
+    if (n == null) return L10n.tr(context, 'mustBeNumber');
+    if (n <= 0) return L10n.tr(context, 'mustBePositive');
     return null;
   }
 
@@ -430,9 +421,9 @@ class _AddSheetState extends State<_AddSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                             Row(
+              Row(
                 children: [
-                  Text(_isEdit ? '编辑牛奶' : '添加牛奶',
+                  Text(_isEdit ? L10n.tr(context, 'editMilk') : L10n.tr(context, 'addMilk'),
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold)),
                   const Spacer(),
@@ -445,10 +436,10 @@ class _AddSheetState extends State<_AddSheet> {
               TextFormField(
                 controller: _nameCtl,
                 focusNode: _nameFocus,
-                decoration: const InputDecoration(
-                  labelText: '名称 / 品牌（选填）',
-                  hintText: '牛奶名称',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: L10n.tr(context, 'nameField'),
+                  hintText: L10n.tr(context, 'nameHint'),
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 12),
@@ -456,46 +447,48 @@ class _AddSheetState extends State<_AddSheet> {
                 controller: _volumeCtl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: '容量 (ml)',
-                  hintText: '如：1000',
-                  border: OutlineInputBorder(),
-                  suffixText: 'ml',
+                decoration: InputDecoration(
+                  labelText: L10n.tr(context, 'volumeField'),
+                  hintText: L10n.tr(context, 'volumeHint'),
+                  border: const OutlineInputBorder(),
+                  suffixText: L10n.tr(context, 'ml'),
                 ),
-                validator: (v) => _require(v, '容量'),
+                validator: (v) => _require(v, 'volume'),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _proteinCtl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: '蛋白质含量 (g/100ml)',
-                  hintText: '如：3.3',
-                  border: OutlineInputBorder(),
-                  suffixText: 'g/100ml',
+                decoration: InputDecoration(
+                  labelText: L10n.tr(context, 'proteinField'),
+                  hintText: L10n.tr(context, 'proteinHint'),
+                  border: const OutlineInputBorder(),
+                  suffixText: L10n.tr(context, 'gPer100ml'),
                 ),
-                validator: (v) => _require(v, '蛋白质含量'),
+                validator: (v) => _require(v, 'protein'),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _priceCtl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: '价格 (元)',
-                  hintText: '如：10',
-                  border: OutlineInputBorder(),
-                  suffixText: '元',
+                decoration: InputDecoration(
+                  labelText: L10n.tr(context, 'priceField'),
+                  hintText: L10n.tr(context, 'priceHint'),
+                  border: const OutlineInputBorder(),
+                  suffixText: L10n.tr(context, 'yuan'),
                 ),
-                validator: (v) => _require(v, '价格'),
+                validator: (v) => _require(v, 'price'),
               ),
               const SizedBox(height: 20),
-                SizedBox(
+              SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _submit,
-                  child: Text(_isEdit ? '保存修改' : '加入对比'),
+                  child: Text(_isEdit
+                      ? L10n.tr(context, 'save')
+                      : L10n.tr(context, 'submit')),
                 ),
               ),
             ],

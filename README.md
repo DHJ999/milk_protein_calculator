@@ -1,5 +1,7 @@
 # 牛奶计算器
 
+> 🌐 **语言 / Language**：[English](README.en.md) · 中文
+
 > ⚠️ **版权与授权声明**
 > 本仓库代码及「牛奶计算器」App 的版权归作者所有。
 > - ✅ 允许：个人学习、研究、非商业性使用。
@@ -25,6 +27,7 @@
 - ↕️ 三种排序：性价比（克/元）↓ / 总蛋白质（g）↓ / 每 100ml 单价（¥）↑
 - 🗑️ 点击卡片上的删除图标即可移除某瓶（支持撤销）
 - ✏️ 点击编辑图标可修改已录入的牛奶
+- 🌐 中英文界面一键切换：在「设置」页选择语言，切换后立即生效，并自动记住你的选择
 - ✅ 单元测试：`flutter test` 验证计算公式与界面烟测
 
 ## 运行步骤
@@ -58,11 +61,13 @@ flutter build ios --release      # iOS（需 macOS + Xcode）
 ## 目录结构
 ```
 lib/
-  main.dart                 # 入口 + 主题
+  main.dart                 # 入口 + 主题 + 语言 Provider
   models/milk.dart          # 数据模型与计算公式
-  services/storage.dart     # 本地持久化
+  services/storage.dart     # 本地持久化（含语言偏好）
+  l10n/l10n.dart            # 国际化：中 / 英文案与语言状态管理
   widgets/milk_card.dart    # 单瓶牛奶信息卡
   screens/home_screen.dart  # 首页：列表 / 添加 / 排序 / 对比
+  screens/settings_screen.dart # 设置页：语言切换
 ```
 
 ## 作者想说的话

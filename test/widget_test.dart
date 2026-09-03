@@ -105,4 +105,30 @@ void main() {
     expect(find.text('3.3 g'), findsOneWidget);
     expect(find.text('性价比最高'), findsOneWidget);
   });
+
+  testWidgets('设置中切换到英文后界面与选择都更新并持久化', (tester) async {
+    await tester.pumpWidget(const MilkApp());
+    await tester.pump();
+
+    // 打开设置页
+    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // 默认中文：能看到「界面语言」
+    expect(find.text('界面语言'), findsOneWidget);
+
+    // 点击 English 段
+    await tester.tap(find.text('English'));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // 界面切换为英文
+    expect(find.text('Language'), findsWidgets);
+    expect(find.text('界面语言'), findsNothing);
+
+    // 选择已持久化到本地存储
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('app_locale_v1'), 'en');
+  });
 }
