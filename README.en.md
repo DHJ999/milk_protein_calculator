@@ -3,8 +3,8 @@
 > 🌐 **Language / 语言**：[中文](README.md) · English
 
 > ⚠️ **Copyright & License**
-> The code in this repository and the "Milk Calculator" app are copyrighted by the author.
-> - ✅ Allowed: personal study, research, and non-commercial use.
+> The code in this repository and the "Milk Calculator" app are licensed under the **PolyForm Noncommercial License 1.0.0** (see [LICENSE](LICENSE)).
+> - ✅ Allowed: personal study, research, and any non-commercial use (including modification and redistribution, provided this notice and the author's attribution are retained).
 > - ❌ **Prohibited**: any commercial use or monetization (including but not limited to reselling, advertising, bundling into commercial products, or profiting from it).
 > - For commercial use, prior written authorization from the author is required. Contact: hjd2002@yeah.net
 
