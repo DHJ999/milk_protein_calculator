@@ -26,6 +26,7 @@ A small app to help you decide which milk to buy: enter **volume, protein conten
 - 🗑️ Tap the delete icon on a card to remove it (with undo support)
 - ✏️ Tap the edit icon to modify an already-entered milk
 - 🌐 One-tap Chinese / English switch: pick a language in **Settings**; it applies instantly and is remembered automatically
+- 🏷️ App name follows the system language: shows "牛奶计算器" on Chinese devices and "Milk Calculator" on English ones
 - ✅ Unit tests: `flutter test` covers the calculation formulas and UI smoke tests
 
 ## Running the App
